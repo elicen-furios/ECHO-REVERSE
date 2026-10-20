@@ -19,7 +19,7 @@
         header { text-align: center; margin-bottom: 30px; }
         header h1 { font-size: 1.8rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
         header p { color: var(--text-muted); font-size: 0.9rem; }
-        .section-title { max-width: 1000px; margin: 20px auto 10px auto; font-size: 1.1rem; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        .section-title { max-width: 1000px; margin: 25px auto 10px auto; font-size: 1.1rem; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
         .studio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
         .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: flex-start; gap: 15px; }
         .card:hover { transform: translateY(-3px); border-color: var(--accent-color); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2); }
@@ -42,42 +42,16 @@
         .process-btn:hover { opacity: 0.9; }
         .status-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--accent-color); display: none; }
         audio { width: 100%; margin-top: 15px; border-radius: 8px; display: none; }
+        footer { text-align: center; margin-top: 40px; color: var(--text-muted); font-size: 0.85rem; }
     </style>
 </head>
 <body>
     <header>
         <h1>Akhil Audio Studio</h1>
-        <p>Advanced Web Audio Processing Suite</p>
+        <p>Akhil Developer Platform</p>
     </header>
 
-    <div class="section-title">DSP Audio Effects</div>
-    <div class="studio-grid">
-        <div class="card" onclick="openModal('3D Audio', 'Enhance stereo sound with spatial 3D effects', '3d')">
-            <div class="card-icon">🎧</div>
-            <div class="card-info"><h3>3D Audio</h3><p>Enhance stereo sound with spatial 3D effects</p></div>
-        </div>
-        <div class="card" onclick="openModal('Auto Panner', 'Dynamic stereo panning effect for spatial sound', 'panner')">
-            <div class="card-icon">🎛️</div>
-            <div class="card-info"><h3>Auto Panner</h3><p>Dynamic stereo panning effect for spatial sound</p></div>
-        </div>
-        <div class="card" onclick="openModal('Vocal Remover', 'Isolate or remove vocals from tracks', 'vocal-remover')">
-            <div class="card-icon">🎤</div>
-            <div class="card-info"><h3>Vocal Remover</h3><p>Isolate or remove vocals from tracks</p></div>
-        </div>
-        <div class="card" onclick="openModal('Pitch Shifter', 'Change the pitch of your audio safely', 'pitch')">
-            <div class="card-icon">🎚️</div>
-            <div class="card-info"><h3>Pitch Shifter</h3><p>Change the pitch of your audio safely</p></div>
-        </div>
-        <div class="card" onclick="openModal('Bass Booster', 'Boost low frequencies for deep club bass', 'bass')">
-            <div class="card-icon">🔊</div>
-            <div class="card-info"><h3>Bass Booster</h3><p>Boost low frequencies for deep club bass</p></div>
-        </div>
-        <div class="card" onclick="openModal('Reverb', 'Add atmospheric echo and space effect', 'reverb')">
-            <div class="card-icon">🌌</div>
-            <div class="card-info"><h3>Reverb</h3><p>Add atmospheric echo and space effect</p></div>
-        </div>
-    </div>
-
+    <!-- AI & API Integrations Section -->
     <div class="section-title">AI & API Integrations</div>
     <div class="studio-grid">
         <div class="card" onclick="openModal('PoYo AI Audio', 'Process audio using PoYo cloud API intelligence', 'poyo-ai')">
@@ -90,6 +64,149 @@
         </div>
     </div>
 
+    <!-- Core Audio Tools -->
+    <div class="section-title">Core Tools</div>
+    <div class="studio-grid">
+        <div class="card" onclick="openModal('BPM Detector', 'Detect the tempo in beats per minute of any song', 'bpm')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>BPM Detector</h3><p>Detect the tempo in beats per minute of any song</p></div>
+        </div>
+        <div class="card" onclick="openModal('Converter', 'Convert any audio file to another file format', 'convert')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Converter</h3><p>Convert any audio file to another file format</p></div>
+        </div>
+        <div class="card" onclick="openModal('Downmixer', 'Reduce the amount of audio channels', 'downmix')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Downmixer</h3><p>Reduce the amount of audio channels</p></div>
+        </div>
+        <div class="card" onclick="openModal('Spectrogram Image', 'Create a spectrogram image from an audio file', 'spectrogram')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Spectrogram Image</h3><p>Create a spectrogram image from an audio file</p></div>
+        </div>
+        <div class="card" onclick="openModal('Waveform Image', 'Create a waveform image from an audio file', 'waveform')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Waveform Image</h3><p>Create a waveform image from an audio file</p></div>
+        </div>
+    </div>
+
+    <!-- DSP Effects & Presets -->
+    <div class="section-title">DSP Effects & Presets</div>
+    <div class="studio-grid">
+        <div class="card" onclick="openModal('3D Audio', 'Enhance the stereo sound by adding a 3D effect to it', '3d')">
+            <div class="card-icon">🎧</div>
+            <div class="card-info"><h3>3D Audio</h3><p>Enhance the stereo sound by adding a 3D effect to it</p></div>
+        </div>
+        <div class="card" onclick="openModal('Auto Panner', 'Make the audio alternate from left to right', 'panner')">
+            <div class="card-icon">🎛️</div>
+            <div class="card-info"><h3>Auto Panner</h3><p>Make the audio alternate from left to right</p></div>
+        </div>
+        <div class="card" onclick="openModal('Bass Booster', 'Boost the bass of a song making it more bass heavy', 'bass')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Bass Booster</h3><p>Boost the bass of a song making it more bass heavy</p></div>
+        </div>
+        <div class="card" onclick="openModal('Equalizer', 'Adjust the frequencies of your audio', 'eq')">
+            <div class="card-icon">🎚️</div>
+            <div class="card-info"><h3>Equalizer</h3><p>Adjust the frequencies of your audio</p></div>
+        </div>
+        <div class="card" onclick="openModal('Noise Reducer', 'Reduce background noise from recordings', 'noise-reducer')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Noise Reducer</h3><p>Reduce background noise from recordings</p></div>
+        </div>
+        <div class="card" onclick="openModal('Pitch Shifter', 'Change the pitch of your audio', 'pitch')">
+            <div class="card-icon">🎚️</div>
+            <div class="card-info"><h3>Pitch Shifter</h3><p>Change the pitch of your audio</p></div>
+        </div>
+        <div class="card" onclick="openModal('Reverb', 'Increase the room size of your audio', 'reverb')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Reverb</h3><p>Increase the room size of your audio</p></div>
+        </div>
+        <div class="card" onclick="openModal('Reverse Audio', 'Reverse an audio file and make it play backwards', 'reverse')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Reverse Audio</h3><p>Reverse an audio file and make it play backwards</p></div>
+        </div>
+        <div class="card" onclick="openModal('Stereo Panner', 'Pan the audio to left or right', 'stereo-panner')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Stereo Panner</h3><p>Pan the audio to left or right</p></div>
+        </div>
+        <div class="card" onclick="openModal('Tempo Changer', 'Make an audio file play faster or slower', 'tempo')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Tempo Changer</h3><p>Make an audio file play faster or slower</p></div>
+        </div>
+        <div class="card" onclick="openModal('Trimmer / Cutter', 'Cut out a part of your audio file', 'trimmer')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Trimmer / Cutter</h3><p>Cut out a part of your audio file</p></div>
+        </div>
+        <div class="card" onclick="openModal('Vocal Remover', 'Remove the vocals from a song leaving only the instrumental', 'vocal-remover')">
+            <div class="card-icon">🎤</div>
+            <div class="card-info"><h3>Vocal Remover</h3><p>Remove the vocals from a song leaving only the instrumental</p></div>
+        </div>
+        <div class="card" onclick="openModal('Volume Changer', 'Change the volume of your audio file', 'volume')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Volume Changer</h3><p>Change the volume of your audio file</p></div>
+        </div>
+        <div class="card" onclick="openModal('Slowed + Reverb', 'Add a slowed and reverb effect to a song', 'slowed-reverb')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>Slowed + Reverb</h3><p>Add a slowed and reverb effect to a song</p></div>
+        </div>
+        <div class="card" onclick="openModal('440 Hz to 432 Hz Converter', 'Convert a track from 440 Hz to 432 Hz by shifting pitch', 'hz-converter')">
+            <div class="card-icon">🎵</div>
+            <div class="card-info"><h3>440 Hz to 432 Hz Converter</h3><p>Convert a track from 440 Hz to 432 Hz by shifting pitch</p></div>
+        </div>
+        <div class="card" onclick="openModal('Very Light Bass Boost', 'Bass booster preset with very light intensity', 'bass-vlight')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Very Light Bass Boost</h3><p>Bass booster preset with very light intensity</p></div>
+        </div>
+        <div class="card" onclick="openModal('Light Bass Boost', 'Bass booster preset with light intensity', 'bass-light')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Light Bass Boost</h3><p>Bass booster preset with light intensity</p></div>
+        </div>
+        <div class="card" onclick="openModal('Moderate Bass Boost', 'Bass booster preset with moderate intensity', 'bass-mod')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Moderate Bass Boost</h3><p>Bass booster preset with moderate intensity</p></div>
+        </div>
+        <div class="card" onclick="openModal('Heavy Bass Boost', 'Bass booster preset with heavy intensity', 'bass-heavy')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Heavy Bass Boost</h3><p>Bass booster preset with heavy intensity</p></div>
+        </div>
+        <div class="card" onclick="openModal('Extreme Bass Boost', 'Bass booster preset with extreme intensity', 'bass-extreme')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Extreme Bass Boost</h3><p>Bass booster preset with extreme intensity</p></div>
+        </div>
+        <div class="card" onclick="openModal('Vocal Reverb', 'Reverb preset for vocal tracks', 'reverb-vocal')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Vocal Reverb</h3><p>Reverb preset for vocal tracks</p></div>
+        </div>
+        <div class="card" onclick="openModal('Bathroom Reverb', 'Reverb preset to replicate audio in a bathroom', 'reverb-bath')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Bathroom Reverb</h3><p>Reverb preset to replicate audio in a bathroom</p></div>
+        </div>
+        <div class="card" onclick="openModal('Small Room Reverb', 'Reverb preset to replicate audio in a small room', 'reverb-small')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Small Room Reverb</h3><p>Reverb preset to replicate audio in a small room</p></div>
+        </div>
+        <div class="card" onclick="openModal('Medium Room Reverb', 'Reverb preset to replicate audio in a medium sized room', 'reverb-med')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Medium Room Reverb</h3><p>Reverb preset to replicate audio in a medium sized room</p></div>
+        </div>
+        <div class="card" onclick="openModal('Large Room Reverb', 'Reverb preset to replicate audio in a large room', 'reverb-large')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Large Room Reverb</h3><p>Reverb preset to replicate audio in a large room</p></div>
+        </div>
+        <div class="card" onclick="openModal('Church Hall Reverb', 'Reverb preset to replicate audio in a church hall', 'reverb-church')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Church Hall Reverb</h3><p>Reverb preset to replicate audio in a church hall</p></div>
+        </div>
+        <div class="card" onclick="openModal('Cathedral Reverb', 'Reverb preset to replicate audio in a cathedral', 'reverb-cathedral')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Cathedral Reverb</h3><p>Reverb preset to replicate audio in a cathedral</p></div>
+        </div>
+    </div>
+
+    <footer>
+        Copyright © 2026 Akhil Audio Studio • Powered by Akhil Developer Platform
+    </footer>
+
+    <!-- Modal Popup -->
     <div id="effectModal" class="modal">
         <div class="modal-content">
             <button class="close-btn" onclick="closeModal()">&times;</button>
