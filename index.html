@@ -1,400 +1,153 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Akhil Audio Studio — Online Audio Toolkit</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        container: { center: true, padding: '1.25rem' },
-        extend: {
-          colors: {
-            background: '#09090b',
-            foreground: '#fafafa',
-            card: '#121215',
-            'card-foreground': '#fafafa',
-            'muted-foreground': '#a1a1aa',
-            accent: '#27272a',
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akhil Audio Studio</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --accent-color: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.1);
         }
-      }
-    }
-  </script>
-  <style>
-    body { background-color: #09090b; color: #fafafa; font-family: system-ui, -apple-system, sans-serif; }
-    .card-hover { transition: all 0.2s ease; cursor: pointer; border-color: #27272a; }
-    .card-hover:hover { transform: translateY(-3px); border-color: #52525b; background-color: #18181b; }
-  </style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); min-height: 100vh; padding: 20px; background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 40%); }
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { font-size: 1.8rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
+        header p { color: var(--text-muted); font-size: 0.9rem; }
+        .section-title { max-width: 1000px; margin: 20px auto 10px auto; font-size: 1.1rem; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+        .studio-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; max-width: 1000px; margin: 0 auto; }
+        .card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: flex-start; gap: 15px; }
+        .card:hover { transform: translateY(-3px); border-color: var(--accent-color); box-shadow: 0 8px 20px rgba(59, 130, 246, 0.2); }
+        .card-icon { font-size: 1.8rem; background: rgba(59, 130, 246, 0.1); padding: 10px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .card-info h3 { font-size: 1.2rem; margin-bottom: 5px; color: #fff; }
+        .card-info p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 1000; padding: 20px; }
+        .modal-content { background: #111827; border: 1px solid var(--border-color); border-radius: 20px; width: 100%; max-width: 450px; padding: 25px; position: relative; box-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        .close-btn { position: absolute; top: 15px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+        .close-btn:hover { color: #fff; }
+        .modal-title { font-size: 1.25rem; margin-bottom: 5px; color: #fff; }
+        .modal-desc { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.85rem; margin-bottom: 8px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .file-input-wrapper { position: relative; overflow: hidden; display: inline-block; width: 100%; }
+        .file-input-wrapper input[type=file] { font-size: 100px; position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; }
+        .file-custom-btn { display: block; background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--border-color); padding: 12px; text-align: center; border-radius: 10px; color: var(--text-color); font-size: 0.9rem; transition: all 0.2s; }
+        .file-input-wrapper:hover .file-custom-btn { border-color: var(--accent-color); background: rgba(59, 130, 246, 0.05); }
+        .process-btn { width: 100%; background: var(--accent-gradient); color: white; border: none; padding: 12px; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        .process-btn:hover { opacity: 0.9; }
+        .status-text { text-align: center; margin-top: 15px; font-size: 0.85rem; color: var(--accent-color); display: none; }
+        audio { width: 100%; margin-top: 15px; border-radius: 8px; display: none; }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+    <header>
+        <h1>Akhil Audio Studio</h1>
+        <p>Advanced Web Audio Processing Suite</p>
+    </header>
 
-  <!-- HEADER (AKHIL BRANDING) -->
-  <header class="border-b border-zinc-800 z-10 py-4 bg-card sticky top-0">
-    <div class="container flex justify-between items-center">
-      <a href="/" class="flex gap-3 items-center">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-red-500 via-purple-500 to-cyan-400 flex items-center justify-center font-extrabold text-black text-lg shadow-md">A</div>
-        <div class="flex flex-col">
-          <span class="font-bold text-lg leading-none tracking-tight text-white">Akhil Audio Studio</span>
-          <span class="text-[11px] text-cyan-400 font-medium tracking-wide mt-0.5">Akhil Developer Platform</span>
+    <div class="section-title">DSP Audio Effects</div>
+    <div class="studio-grid">
+        <div class="card" onclick="openModal('3D Audio', 'Enhance stereo sound with spatial 3D effects', '3d')">
+            <div class="card-icon">🎧</div>
+            <div class="card-info"><h3>3D Audio</h3><p>Enhance stereo sound with spatial 3D effects</p></div>
         </div>
-      </a>
-      <div class="hidden sm:flex items-center gap-2">
-        <span class="text-xs bg-zinc-800/80 border border-zinc-700 text-zinc-300 px-3 py-1 rounded-full font-medium">Created by Akhil</span>
-      </div>
+        <div class="card" onclick="openModal('Auto Panner', 'Dynamic stereo panning effect for spatial sound', 'panner')">
+            <div class="card-icon">🎛️</div>
+            <div class="card-info"><h3>Auto Panner</h3><p>Dynamic stereo panning effect for spatial sound</p></div>
+        </div>
+        <div class="card" onclick="openModal('Vocal Remover', 'Isolate or remove vocals from tracks', 'vocal-remover')">
+            <div class="card-icon">🎤</div>
+            <div class="card-info"><h3>Vocal Remover</h3><p>Isolate or remove vocals from tracks</p></div>
+        </div>
+        <div class="card" onclick="openModal('Pitch Shifter', 'Change the pitch of your audio safely', 'pitch')">
+            <div class="card-icon">🎚️</div>
+            <div class="card-info"><h3>Pitch Shifter</h3><p>Change the pitch of your audio safely</p></div>
+        </div>
+        <div class="card" onclick="openModal('Bass Booster', 'Boost low frequencies for deep club bass', 'bass')">
+            <div class="card-icon">🔊</div>
+            <div class="card-info"><h3>Bass Booster</h3><p>Boost low frequencies for deep club bass</p></div>
+        </div>
+        <div class="card" onclick="openModal('Reverb', 'Add atmospheric echo and space effect', 'reverb')">
+            <div class="card-icon">🌌</div>
+            <div class="card-info"><h3>Reverb</h3><p>Add atmospheric echo and space effect</p></div>
+        </div>
     </div>
-  </header>
 
-  <!-- MAIN CONTENT -->
-  <div class="container flex-1 pb-20">
-    <div class="py-12 flex flex-col gap-3 text-center">
-      <h1 class="text-4xl font-bold tracking-tight">Your online audio toolkit</h1>
-      <p class="text-muted-foreground text-base">A collection of easy-to-use web tools for all your audio files</p>
+    <div class="section-title">AI & API Integrations</div>
+    <div class="studio-grid">
+        <div class="card" onclick="openModal('PoYo AI Audio', 'Process audio using PoYo cloud API intelligence', 'poyo-ai')">
+            <div class="card-icon">⚡</div>
+            <div class="card-info"><h3>PoYo AI Audio</h3><p>Process audio using PoYo cloud API intelligence</p></div>
+        </div>
+        <div class="card" onclick="openModal('Pixazo Enhancer', 'Advanced cloud mastering via Pixazo API', 'pixazo-ai')">
+            <div class="card-icon">✨</div>
+            <div class="card-info"><h3>Pixazo Enhancer</h3><p>Advanced cloud mastering via Pixazo API</p></div>
+        </div>
     </div>
 
-    <!-- EFFECTS GRID -->
-    <h2 class="text-center mb-5 uppercase font-semibold tracking-wider text-sm text-zinc-400">Effects</h2>
-    <div id="effects-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-14"></div>
-
-    <!-- OTHER TOOLS GRID -->
-    <h2 class="text-center mb-5 uppercase font-semibold tracking-wider text-sm text-zinc-400">Other tools</h2>
-    <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-14"></div>
-
-    <!-- PRESETS GRID -->
-    <h2 class="text-center mb-5 uppercase font-semibold tracking-wider text-sm text-zinc-400">Presets</h2>
-    <div id="presets-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12"></div>
-  </div>
-
-  <!-- STUDIO MODAL -->
-  <div id="studio-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-card border border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl leading-none">&times;</button>
-      <div class="flex items-center gap-3 mb-2">
-        <div id="modal-icon" class="w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-800 font-bold text-cyan-400">🎵</div>
-        <div>
-          <h3 id="modal-title" class="text-xl font-bold">Tool Name</h3>
-          <p id="modal-desc" class="text-xs text-muted-foreground">Description</p>
+    <div id="effectModal" class="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+            <h2 id="modalTitle" class="modal-title">Effect Title</h2>
+            <p id="modalDesc" class="modal-desc">Effect description goes here.</p>
+            <form id="audioForm" onsubmit="handleSubmit(event)">
+                <div class="form-group">
+                    <label>1. Select Audio File</label>
+                    <div class="file-input-wrapper">
+                        <button type="button" class="file-custom-btn" id="fileLabel">Choose file</button>
+                        <input type="file" id="audioFile" accept="audio/*" required onchange="updateFileName(this)">
+                    </div>
+                </div>
+                <button type="submit" class="process-btn">⚡ Process Audio</button>
+                <div id="statusText" class="status-text">Processing in Akhil Studio... Please wait.</div>
+                <audio id="audioResult" controls></audio>
+            </form>
         </div>
-      </div>
-
-      <hr class="border-zinc-800 my-4"/>
-
-      <!-- FILE UPLOAD -->
-      <div class="mb-4">
-        <label class="block text-xs uppercase text-zinc-400 mb-2 font-semibold">1. Select Audio File</label>
-        <input type="file" id="audio-input" accept="audio/*" onchange="loadInputPreview(this)" class="w-full text-sm text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer border border-zinc-800 rounded-lg p-1.5"/>
-      </div>
-
-      <!-- LIVE INPUT PREVIEW & NEON SPECTRUM -->
-      <div id="live-preview-box" class="mb-4 hidden space-y-2 bg-zinc-900/70 p-3 rounded-xl border border-zinc-800">
-        <div class="flex justify-between items-center">
-          <span class="text-[11px] uppercase tracking-wider text-cyan-400 font-semibold">🎧 Original Track Preview</span>
-          <span id="file-meta" class="text-[11px] text-zinc-400 font-mono"></span>
-        </div>
-        <canvas id="modal-visualizer" class="w-full h-16 bg-black/80 rounded-lg border border-zinc-800"></canvas>
-        <audio id="input-audio" controls class="w-full h-9"></audio>
-      </div>
-
-      <!-- DYNAMIC CONTROLS -->
-      <div id="dynamic-controls" class="space-y-4 mb-6">
-        <div id="slider1-wrap">
-          <div class="flex justify-between text-xs mb-1">
-            <span id="slider1-label" class="text-zinc-300 font-medium">Intensity / Gain</span>
-            <span id="slider1-val" class="text-cyan-400 font-mono">6</span>
-          </div>
-          <input type="range" id="param1" min="-12" max="20" step="0.5" value="6" oninput="document.getElementById('slider1-val').innerText=this.value" class="w-full accent-cyan-400"/>
-        </div>
-
-        <div id="slider2-wrap" class="hidden">
-          <div class="flex justify-between text-xs mb-1">
-            <span id="slider2-label" class="text-zinc-300 font-medium">Treble Gain (dB)</span>
-            <span id="slider2-val" class="text-cyan-400 font-mono">2</span>
-          </div>
-          <input type="range" id="param2" min="-12" max="20" step="1" value="2" oninput="document.getElementById('slider2-val').innerText=this.value" class="w-full accent-cyan-400"/>
-        </div>
-
-        <div id="trim-wrap" class="hidden grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs text-zinc-400">Start Time (sec)</label>
-            <input type="number" id="trim-start" value="0" min="0" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm mt-1"/>
-          </div>
-          <div>
-            <label class="text-xs text-zinc-400">End Time (sec)</label>
-            <input type="number" id="trim-end" value="30" min="1" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm mt-1"/>
-          </div>
-        </div>
-
-        <div id="format-wrap" class="hidden">
-          <label class="text-xs text-zinc-400">Output Format</label>
-          <select id="convert-format" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm mt-1">
-            <option value="mp3">MP3 (320kbps)</option>
-            <option value="wav">WAV (Lossless)</option>
-            <option value="ogg">OGG</option>
-            <option value="flac">FLAC (Hi-Res)</option>
-            <option value="m4a">M4A</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- ACTION BUTTON -->
-      <button id="process-btn" onclick="runDSP()" class="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-sm shadow-lg transition">
-        ⚡ Process Audio
-      </button>
-
-      <!-- STATUS & RESULT PREVIEW -->
-      <div id="status-box" class="mt-4 text-center text-xs text-amber-400 font-medium hidden animate-pulse">⏳ Processing in Akhil Studio (FFmpeg DSP)...</div>
-      <div id="result-box" class="mt-4 hidden space-y-3 bg-zinc-900/90 p-4 rounded-xl border border-zinc-800">
-        <p class="text-xs text-emerald-400 font-semibold">✅ Ready to Play & Download (320kbps Studio Master)!</p>
-        <audio id="result-audio" controls class="w-full h-10 hidden"></audio>
-        <img id="result-img" class="w-full rounded-lg hidden border border-zinc-700"/>
-        <pre id="result-info" class="text-xs text-left text-cyan-300 bg-black p-3 rounded hidden overflow-x-auto"></pre>
-        <a id="download-btn" class="block w-full text-center py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-bold text-white transition">⬇ Download Output</a>
-      </div>
     </div>
-  </div>
 
-  <!-- FOOTER (AKHIL BRANDING) -->
-  <footer class="bg-card border-t border-zinc-800 py-6 text-center text-xs text-muted-foreground">
-    Copyright © 2026 <strong class="text-white">Akhil Audio Studio</strong> • Powered by <span class="text-cyan-400">Akhil Developer Platform</span>
-  </footer>
-
-  <script>
-    const EFFECTS = [
-      { id: '3d-audio', title: '3D Audio', desc: 'Enhance the stereo sound by adding a 3D effect to it', color: '#E53E3E', mode: 'none' },
-      { id: 'autopanner', title: 'Auto Panner', desc: 'Make the audio alternate from left to right', color: '#DD6B20', mode: 'slider', label: 'Pan Speed (Hz)', min: 0.1, max: 3, step: 0.1, val: 0.5 },
-      { id: 'bass-booster', title: 'Bass Booster', desc: 'Boost the bass of a song making it more bass heavy', color: '#D69E2E', mode: 'slider', label: 'Bass Gain (dB)', min: 1, max: 25, step: 1, val: 10 },
-      { id: 'equalizer', title: 'Equalizer', desc: 'Adjust the frequencies of your audio', color: '#38A169', mode: 'eq', label: 'Bass Gain (dB)', min: -12, max: 15, step: 1, val: 6 },
-      { id: 'noise-reducer', title: 'Noise Reducer', desc: 'Reduce background noise from recordings', color: '#319795', mode: 'none' },
-      { id: 'pitch-shifter', title: 'Pitch Shifter', desc: 'Change the pitch of your audio', color: '#3182CE', mode: 'slider', label: 'Semitones', min: -12, max: 12, step: 0.5, val: 2 },
-      { id: 'reverb', title: 'Reverb', desc: 'Increase the room size of your audio', color: '#00B5D8', mode: 'slider', label: 'Room Size (%)', min: 10, max: 100, step: 5, val: 50 },
-      { id: 'reverse', title: 'Reverse Audio', desc: 'Reverse an audio file and make it play backwards', color: '#805AD5', mode: 'none' },
-      { id: 'stereo-panner', title: 'Stereo Panner', desc: 'Pan the audio to left or right', color: '#D53F8C', mode: 'slider', label: 'Left (-10) to Right (+10)', min: -10, max: 10, step: 1, val: 0 },
-      { id: 'tempo', title: 'Tempo Changer', desc: 'Make an audio file play faster or slower', color: '#E53E3E', mode: 'slider', label: 'Speed Multiplier (x)', min: 0.5, max: 2.0, step: 0.05, val: 1.25 },
-      { id: 'trimmer', title: 'Trimmer / Cutter', desc: 'Cut out a part of your audio file', color: '#DD6B20', mode: 'trim' },
-      { id: 'vocal-remover', title: 'Vocal Remover', desc: 'Remove the vocals from a song leaving only the instrumental', color: '#D69E2E', mode: 'none' },
-      { id: 'volume', title: 'Volume Changer', desc: 'Make your audio louder or quieter', color: '#38A169', mode: 'slider', label: 'Volume Change (dB)', min: -20, max: 20, step: 1, val: 6 }
-    ];
-
-    const OTHER_TOOLS = [
-      { id: 'bpm-detector', title: 'BPM Detector', desc: 'Detect the tempo in beats per minute of any song', color: '#319795', mode: 'bpm' },
-      { id: 'converter', title: 'Converter', desc: 'Convert any audio file to another file format', color: '#3182CE', mode: 'format' },
-      { id: 'downmixer', title: 'Downmixer', desc: 'Reduce the amount of audio channels', color: '#00B5D8', mode: 'none' },
-      { id: 'spectrogram', title: 'Spectrogram Image', desc: 'Create a spectrogram image from an audio file', color: '#805AD5', mode: 'none' },
-      { id: 'waveform', title: 'Waveform Image', desc: 'Create a waveform image from an audio file', color: '#D53F8C', mode: 'none' }
-    ];
-
-    const PRESETS = [
-      { id: 'preset-8d-audio', title: '8D Audio', desc: '"8D Audio" makes it sound like the audio is moving in circles around your head with concert reverb.' },
-      { id: 'preset-16d-audio', title: '16D Surround Audio', desc: 'Ultra-wide 16D circular surround sound with dual multi-tap studio reverb.' },
-      { id: 'preset-slowed-reverb', title: 'Slowed and Reverb', desc: 'Add a slowed and reverb effect to a song' },
-      { id: 'preset-nightcore', title: 'Nightcore Remix', desc: 'Speed up and pitch shift any track into an energetic Nightcore version.' },
-      { id: 'preset-lofi', title: 'Lo-Fi Chillhop', desc: 'Warm vintage tape filter with relaxed tempo and cozy room ambiance.' },
-      { id: 'preset-432hz', title: '440 Hz to 432 Hz Converter', desc: 'Convert a track from 440 Hz to 432 Hz by shifting pitch by -0.32 semitones.' },
-      { id: 'preset-528hz', title: '528 Hz Solfeggio Frequency', desc: 'Tune your audio track to the 528 Hz positive transformation frequency.' },
-      { id: 'preset-very-light-bass', title: 'Very Light Bass Boost', desc: 'Bass booster preset with very light intensity' },
-      { id: 'preset-light-bass', title: 'Light Bass Boost', desc: 'Bass booster preset with light intensity' },
-      { id: 'preset-moderate-bass', title: 'Moderate Bass Boost', desc: 'Bass booster preset with moderate intensity' },
-      { id: 'preset-heavy-bass', title: 'Heavy Bass Boost', desc: 'Bass booster preset with heavy intensity' },
-      { id: 'preset-extreme-bass', title: 'Extreme Bass Boost', desc: 'Bass booster preset with extreme intensity' },
-      { id: 'preset-vocal-reverb', title: 'Vocal Reverb', desc: 'Reverb preset for vocal tracks' },
-      { id: 'preset-bathroom-reverb', title: 'Bathroom Reverb', desc: 'Reverb preset to replicate audio being played in a bathroom' },
-      { id: 'preset-small-room-reverb', title: 'Small Room Reverb', desc: 'Reverb preset to replicate audio being played in a small room' },
-      { id: 'preset-medium-room-reverb', title: 'Medium Room Reverb', desc: 'Reverb preset to replicate audio being played in a medium sized room' },
-      { id: 'preset-large-room-reverb', title: 'Large Room Reverb', desc: 'Reverb preset to replicate audio being played in a large room' },
-      { id: 'preset-church-hall-reverb', title: 'Church Hall Reverb', desc: 'Reverb preset to replicate audio being played in a church hall' },
-      { id: 'preset-cathedral-reverb', title: 'Cathedral Reverb', desc: 'Reverb preset to replicate audio being played in a cathedral' }
-    ];
-
-    let activeTool = null;
-    let audioCtx, analyser, sourceNode;
-
-    function createCard(item, isPreset = false) {
-      const iconHtml = isPreset ? '' : `
-        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:${item.color}22; border: 1px solid ${item.color}55; color:${item.color}">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
-        </div>`;
-      return `
-        <div onclick='openTool(${JSON.stringify(item)})' class="card-hover bg-card text-card-foreground flex flex-col gap-3 rounded-xl border p-5 shadow-sm h-full">
-          <div class="flex gap-3 items-center">
-            ${iconHtml}
-            <div class="leading-tight font-semibold text-base">${item.title}</div>
-          </div>
-          <div class="text-muted-foreground text-xs leading-relaxed line-clamp-3">${item.desc}</div>
-        </div>`;
-    }
-
-    document.getElementById('effects-grid').innerHTML = EFFECTS.map(i => createCard(i)).join('');
-    document.getElementById('tools-grid').innerHTML = OTHER_TOOLS.map(i => createCard(i)).join('');
-    document.getElementById('presets-grid').innerHTML = PRESETS.map(i => createCard({ ...i, mode: 'none', color: '#00B5D8' }, true)).join('');
-
-    function loadInputPreview(input) {
-      if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      const previewBox = document.getElementById('live-preview-box');
-      const inputAudio = document.getElementById('input-audio');
-      document.getElementById('file-meta').innerText = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
-      inputAudio.src = URL.createObjectURL(file);
-      previewBox.classList.remove('hidden');
-
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 64;
-        sourceNode = audioCtx.createMediaElementSource(inputAudio);
-        sourceNode.connect(analyser);
-        analyser.connect(audioCtx.destination);
-        drawModalSpectrum();
-      }
-    }
-
-    function drawModalSpectrum() {
-      requestAnimationFrame(drawModalSpectrum);
-      if (!analyser) return;
-      const canvas = document.getElementById('modal-visualizer');
-      const ctx = canvas.getContext('2d');
-      const data = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(data);
-      ctx.fillStyle = '#09090b';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const bw = (canvas.width / data.length) * 1.5;
-      let x = 0;
-      for (let i = 0; i < data.length; i++) {
-        const h = (data[i] / 255) * canvas.height;
-        ctx.fillStyle = '#00B5D8';
-        ctx.fillRect(x, canvas.height - h, bw - 2, h);
-        x += bw;
-      }
-    }
-
-    function openTool(item) {
-      activeTool = item;
-      document.getElementById('modal-title').innerText = item.title;
-      document.getElementById('modal-desc').innerText = item.desc;
-      document.getElementById('result-box').classList.add('hidden');
-      document.getElementById('status-box').classList.add('hidden');
-
-      const s1 = document.getElementById('slider1-wrap');
-      const s2 = document.getElementById('slider2-wrap');
-      const tr = document.getElementById('trim-wrap');
-      const fm = document.getElementById('format-wrap');
-
-      s1.classList.add('hidden'); s2.classList.add('hidden');
-      tr.classList.add('hidden'); fm.classList.add('hidden');
-
-      if (item.mode === 'slider' || item.mode === 'eq') {
-        s1.classList.remove('hidden');
-        document.getElementById('slider1-label').innerText = item.label;
-        const p1 = document.getElementById('param1');
-        p1.min = item.min; p1.max = item.max; p1.step = item.step; p1.value = item.val;
-        document.getElementById('slider1-val').innerText = item.val;
-      }
-      if (item.mode === 'eq') s2.classList.remove('hidden');
-      if (item.mode === 'trim') tr.classList.remove('hidden');
-      if (item.mode === 'format') fm.classList.remove('hidden');
-
-      const modal = document.getElementById('studio-modal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('studio-modal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-      document.getElementById('result-audio').pause();
-      document.getElementById('input-audio').pause();
-    }
-
-    async function detectBPMClient(file) {
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const buf = await ctx.decodeAudioData(await file.arrayBuffer());
-        const data = buf.getChannelData(0);
-        let peaks = 0, threshold = 0.65;
-        for (let i = 0; i < data.length; i += 4410) {
-          if (Math.abs(data[i]) > threshold) peaks++;
+    <script>
+        let currentEffect = '';
+        function openModal(title, desc, effect) {
+            currentEffect = effect;
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDesc').innerText = desc;
+            document.getElementById('audioFile').value = '';
+            document.getElementById('fileLabel').innerText = 'Choose file';
+            document.getElementById('audioResult').style.display = 'none';
+            document.getElementById('statusText').style.display = 'none';
+            document.getElementById('effectModal').style.display = 'flex';
         }
-        const mins = buf.duration / 60;
-        const estBpm = Math.min(180, Math.max(70, Math.round((peaks / mins) / 2)));
-        return { bpm: estBpm, duration: buf.duration.toFixed(2), sampleRate: buf.sampleRate };
-      } catch (e) {
-        return null;
-      }
-    }
-
-    async function runDSP() {
-      const fileInput = document.getElementById('audio-input');
-      if (!fileInput.files.length) return alert('Pehle ek audio file select karein!');
-
-      document.getElementById('input-audio').pause();
-      const file = fileInput.files[0];
-      const statusBox = document.getElementById('status-box');
-      const resultBox = document.getElementById('result-box');
-      const audioEl = document.getElementById('result-audio');
-      const imgEl = document.getElementById('result-img');
-      const infoEl = document.getElementById('result-info');
-      const dlBtn = document.getElementById('download-btn');
-
-      statusBox.classList.remove('hidden');
-      resultBox.classList.add('hidden');
-      audioEl.classList.add('hidden');
-      imgEl.classList.add('hidden');
-      infoEl.classList.add('hidden');
-
-      if (activeTool.id === 'bpm-detector') {
-        const bpmData = await detectBPMClient(file);
-        statusBox.classList.add('hidden');
-        resultBox.classList.remove('hidden');
-        infoEl.classList.remove('hidden');
-        dlBtn.classList.add('hidden');
-        infoEl.innerText = bpmData
-          ? `🎵 Estimated Tempo : ${bpmData.bpm} BPM\n⏱ Duration        : ${bpmData.duration} sec\n🔊 Sample Rate     : ${bpmData.sampleRate} Hz`
-          : `Could not analyze BPM.`;
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('audio', file);
-      formData.append('tool', activeTool.id);
-      formData.append('param1', document.getElementById('param1').value);
-      formData.append('param2', document.getElementById('param2').value);
-      formData.append('start', document.getElementById('trim-start').value);
-      formData.append('end', document.getElementById('trim-end').value);
-      formData.append('format', document.getElementById('convert-format').value);
-
-      try {
-        const res = await fetch('/api/process', { method: 'POST', body: formData });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Server error');
+        function closeModal() { document.getElementById('effectModal').style.display = 'none'; }
+        function updateFileName(input) { if (input.files && input.files[0]) { document.getElementById('fileLabel').innerText = input.files[0].name; } }
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('audioFile');
+            const statusText = document.getElementById('statusText');
+            const audioResult = document.getElementById('audioResult');
+            if (fileInput.files.length === 0) return;
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('effect', currentEffect);
+            statusText.style.display = 'block';
+            audioResult.style.display = 'none';
+            try {
+                const response = await fetch('/process', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error('Server processing failed.');
+                const blob = await response.blob();
+                audioResult.src = URL.createObjectURL(blob);
+                audioResult.style.display = 'block';
+                statusText.innerText = '✨ Processing Complete!';
+            } catch (error) {
+                console.error(error);
+                alert('Error: Failed to process audio.');
+                statusText.style.display = 'none';
+            }
         }
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-
-        statusBox.classList.add('hidden');
-        resultBox.classList.remove('hidden');
-        dlBtn.classList.remove('hidden');
-        dlBtn.href = url;
-
-        const isImg = activeTool.id === 'spectrogram' || activeTool.id === 'waveform';
-        const ext = isImg ? 'png' : (activeTool.id === 'converter' ? document.getElementById('convert-format').value : 'mp3');
-        dlBtn.download = `Akhil_Studio_${activeTool.id}.${ext}`;
-
-        if (isImg) {
-          imgEl.src = url;
-          imgEl.classList.remove('hidden');
-        } else {
-          audioEl.src = url;
-          audioEl.classList.remove('hidden');
-          audioEl.play();
-        }
-      } catch (err) {
-        statusBox.classList.add('hidden');
-        alert('Error: ' + err.message);
-      }
-    }
-  </script>
+    </script>
 </body>
 </html>
