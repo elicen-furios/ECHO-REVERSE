@@ -12,6 +12,20 @@ OUTPUT_FOLDER = 'outputs'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
+def get_sample_rate(file_path):
+    """Auto-detect original audio sample rate (44100, 48000, etc.) so speed never changes accidentally."""
+    try:
+        cmd = [
+            'ffprobe', '-v', 'error', '-select_streams', 'a:0',
+            '-show_entries', 'stream=sample_rate',
+            '-of', 'default=noprint_wrappers=1:nokey=1', file_path
+        ]
+        res = subprocess.run(cmd, capture_output=True, text=True)
+        sr = int(res.stdout.strip())
+        return sr if sr > 0 else 44100
+    except Exception:
+        return 44100
+
 @app.route('/')
 def index():
     return send_from_directory('.', 'index.html')
@@ -33,6 +47,9 @@ def process_audio():
     ext = os.path.splitext(file.filename)[1] or '.mp3'
     in_path = os.path.join(UPLOAD_FOLDER, f"{uid}_in{ext}")
     file.save(in_path)
+
+    # Detect actual sample rate of the song
+    sr = get_sample_rate(in_path)
 
     if tool in ['spectrogram', 'waveform']:
         out_ext = '.png'
@@ -64,12 +81,13 @@ def process_audio():
     elif tool == 'noise-reducer':
         af.append("highpass=f=120,lowpass=f=10000,afftdn=nf=-25")
     elif tool == 'pitch-shifter':
+        # Uses actual sample rate (sr) so tempo remains 100% locked
         factor = 2 ** (param1 / 12.0)
         inv = 1.0 / factor
-        af.append(f"asetrate=44100*{factor:.4f},aresample=44100,atempo={max(0.5, min(2.0, inv)):.4f}")
+        af.append(f"asetrate={int(sr * factor)},aresample={sr},atempo={max(0.5, min(2.0, inv)):.4f}")
     elif tool == 'reverb':
         delay = int(max(20, min(1000, param1 * 12)))
-        af.append(f"aecho=0.8:0.9:{delay}:0.5")
+        af.append(f"aecho=0.8:0.88:{delay}:0.45")
     elif tool == 'reverse':
         af.append("areverse")
     elif tool == 'stereo-panner':
@@ -81,7 +99,8 @@ def process_audio():
     elif tool == 'trimmer':
         cmd = ['ffmpeg', '-y', '-ss', str(start_time), '-to', str(end_time), '-i', in_path]
     elif tool == 'vocal-remover':
-        af.append("stereotools=mode=lr>ll,pan=stereo|c0=c0-c1|c1=c0-c1")
+        # True Stereo Center-Channel Vocal Cancellation + Bass Recovery
+        af.append("stereotools=mlev=0.015625:slev=1.4,bandreject=f=1000:width_type=h:w=1600,volume=3dB")
     elif tool == 'volume':
         af.append(f"volume={param1}dB")
 
@@ -93,13 +112,21 @@ def process_audio():
     elif tool == 'waveform':
         cmd.extend(['-lavfi', 'showwavespic=s=1024x320:colors=#D53F8C', out_path])
 
-    # --- 3. PRESETS ---
+    # --- 3. PRESETS (Fixed with Dynamic Sample Rate `sr`) ---
     elif tool == 'preset-8d-audio':
         af.append("apulsator=mode=sine:hz=0.125:amount=1,aecho=0.8:0.88:60:0.4,bass=g=3:f=100")
+    elif tool == 'preset-16d-audio':
+        af.append("apulsator=mode=sine:hz=0.22:amount=1,aecho=0.8:0.9:40|80:0.4|0.3,extrastereo=m=2.2")
     elif tool == 'preset-slowed-reverb':
-        af.append("asetrate=44100*0.85,aresample=44100,aecho=0.8:0.88:75:0.45")
+        af.append(f"asetrate={int(sr * 0.85)},aresample={sr},aecho=0.8:0.88:75:0.45")
+    elif tool == 'preset-nightcore':
+        af.append(f"asetrate={int(sr * 1.22)},aresample={sr},treble=g=3:f=3500")
+    elif tool == 'preset-lofi':
+        af.append(f"asetrate={int(sr * 0.92)},aresample={sr},lowpass=f=3200,highpass=f=120,aecho=0.8:0.85:50:0.35")
     elif tool == 'preset-432hz':
-        af.append("asetrate=44100*0.981818,aresample=44100,atempo=1.018518")
+        af.append(f"asetrate={int(sr * 0.981818)},aresample={sr},atempo=1.018518")
+    elif tool == 'preset-528hz':
+        af.append(f"asetrate={int(sr * 1.0091)},aresample={sr},atempo=0.9909")
     elif tool == 'preset-very-light-bass':
         af.append("bass=g=3:f=100")
     elif tool == 'preset-light-bass':
@@ -128,6 +155,8 @@ def process_audio():
     if tool not in ['spectrogram', 'waveform']:
         if af:
             cmd.extend(['-af', ','.join(af)])
+        if out_ext == '.mp3':
+            cmd.extend(['-b:a', '320k'])
         cmd.append(out_path)
 
     proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -138,7 +167,7 @@ def process_audio():
 
 if __name__ == '__main__':
     print("\n====================================================")
-    print("🚀 AKHIL AUDIO STUDIO RUNNING ON PORT 5000")
+    print("🚀 AKHIL AUDIO STUDIO RUNNING ON PORT 5000 (FIXED)")
     print("👉 Open Browser: http://127.0.0.1:5000")
     print("====================================================\n")
     app.run(host='0.0.0.0', port=5000, debug=False)
