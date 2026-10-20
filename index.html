@@ -68,8 +68,8 @@
   </div>
 
   <!-- STUDIO MODAL -->
-  <div id="studio-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-    <div class="bg-card border border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+  <div id="studio-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-card border border-zinc-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative my-8">
       <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl leading-none">&times;</button>
       <div class="flex items-center gap-3 mb-2">
         <div id="modal-icon" class="w-10 h-10 rounded-xl flex items-center justify-center bg-zinc-800 font-bold text-cyan-400">🎵</div>
@@ -84,7 +84,17 @@
       <!-- FILE UPLOAD -->
       <div class="mb-4">
         <label class="block text-xs uppercase text-zinc-400 mb-2 font-semibold">1. Select Audio File</label>
-        <input type="file" id="audio-input" accept="audio/*" class="w-full text-sm text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer border border-zinc-800 rounded-lg p-1.5"/>
+        <input type="file" id="audio-input" accept="audio/*" onchange="loadInputPreview(this)" class="w-full text-sm text-zinc-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-white hover:file:bg-zinc-700 cursor-pointer border border-zinc-800 rounded-lg p-1.5"/>
+      </div>
+
+      <!-- LIVE INPUT PREVIEW & NEON SPECTRUM -->
+      <div id="live-preview-box" class="mb-4 hidden space-y-2 bg-zinc-900/70 p-3 rounded-xl border border-zinc-800">
+        <div class="flex justify-between items-center">
+          <span class="text-[11px] uppercase tracking-wider text-cyan-400 font-semibold">🎧 Original Track Preview</span>
+          <span id="file-meta" class="text-[11px] text-zinc-400 font-mono"></span>
+        </div>
+        <canvas id="modal-visualizer" class="w-full h-16 bg-black/80 rounded-lg border border-zinc-800"></canvas>
+        <audio id="input-audio" controls class="w-full h-9"></audio>
       </div>
 
       <!-- DYNAMIC CONTROLS -->
@@ -119,10 +129,10 @@
         <div id="format-wrap" class="hidden">
           <label class="text-xs text-zinc-400">Output Format</label>
           <select id="convert-format" class="w-full bg-zinc-900 border border-zinc-700 rounded p-2 text-sm mt-1">
-            <option value="mp3">MP3</option>
-            <option value="wav">WAV</option>
+            <option value="mp3">MP3 (320kbps)</option>
+            <option value="wav">WAV (Lossless)</option>
             <option value="ogg">OGG</option>
-            <option value="flac">FLAC</option>
+            <option value="flac">FLAC (Hi-Res)</option>
             <option value="m4a">M4A</option>
           </select>
         </div>
@@ -134,9 +144,9 @@
       </button>
 
       <!-- STATUS & RESULT PREVIEW -->
-      <div id="status-box" class="mt-4 text-center text-xs text-zinc-400 hidden">Processing in Akhil Studio...</div>
+      <div id="status-box" class="mt-4 text-center text-xs text-amber-400 font-medium hidden animate-pulse">⏳ Processing in Akhil Studio (FFmpeg DSP)...</div>
       <div id="result-box" class="mt-4 hidden space-y-3 bg-zinc-900/90 p-4 rounded-xl border border-zinc-800">
-        <p class="text-xs text-emerald-400 font-semibold">✅ Ready to Play & Download!</p>
+        <p class="text-xs text-emerald-400 font-semibold">✅ Ready to Play & Download (320kbps Studio Master)!</p>
         <audio id="result-audio" controls class="w-full h-10 hidden"></audio>
         <img id="result-img" class="w-full rounded-lg hidden border border-zinc-700"/>
         <pre id="result-info" class="text-xs text-left text-cyan-300 bg-black p-3 rounded hidden overflow-x-auto"></pre>
@@ -177,8 +187,12 @@
 
     const PRESETS = [
       { id: 'preset-8d-audio', title: '8D Audio', desc: '"8D Audio" makes it sound like the audio is moving in circles around your head with concert reverb.' },
+      { id: 'preset-16d-audio', title: '16D Surround Audio', desc: 'Ultra-wide 16D circular surround sound with dual multi-tap studio reverb.' },
       { id: 'preset-slowed-reverb', title: 'Slowed and Reverb', desc: 'Add a slowed and reverb effect to a song' },
+      { id: 'preset-nightcore', title: 'Nightcore Remix', desc: 'Speed up and pitch shift any track into an energetic Nightcore version.' },
+      { id: 'preset-lofi', title: 'Lo-Fi Chillhop', desc: 'Warm vintage tape filter with relaxed tempo and cozy room ambiance.' },
       { id: 'preset-432hz', title: '440 Hz to 432 Hz Converter', desc: 'Convert a track from 440 Hz to 432 Hz by shifting pitch by -0.32 semitones.' },
+      { id: 'preset-528hz', title: '528 Hz Solfeggio Frequency', desc: 'Tune your audio track to the 528 Hz positive transformation frequency.' },
       { id: 'preset-very-light-bass', title: 'Very Light Bass Boost', desc: 'Bass booster preset with very light intensity' },
       { id: 'preset-light-bass', title: 'Light Bass Boost', desc: 'Bass booster preset with light intensity' },
       { id: 'preset-moderate-bass', title: 'Moderate Bass Boost', desc: 'Bass booster preset with moderate intensity' },
@@ -194,6 +208,7 @@
     ];
 
     let activeTool = null;
+    let audioCtx, analyser, sourceNode;
 
     function createCard(item, isPreset = false) {
       const iconHtml = isPreset ? '' : `
@@ -213,6 +228,45 @@
     document.getElementById('effects-grid').innerHTML = EFFECTS.map(i => createCard(i)).join('');
     document.getElementById('tools-grid').innerHTML = OTHER_TOOLS.map(i => createCard(i)).join('');
     document.getElementById('presets-grid').innerHTML = PRESETS.map(i => createCard({ ...i, mode: 'none', color: '#00B5D8' }, true)).join('');
+
+    function loadInputPreview(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const previewBox = document.getElementById('live-preview-box');
+      const inputAudio = document.getElementById('input-audio');
+      document.getElementById('file-meta').innerText = `${(file.size / (1024 * 1024)).toFixed(2)} MB`;
+      inputAudio.src = URL.createObjectURL(file);
+      previewBox.classList.remove('hidden');
+
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 64;
+        sourceNode = audioCtx.createMediaElementSource(inputAudio);
+        sourceNode.connect(analyser);
+        analyser.connect(audioCtx.destination);
+        drawModalSpectrum();
+      }
+    }
+
+    function drawModalSpectrum() {
+      requestAnimationFrame(drawModalSpectrum);
+      if (!analyser) return;
+      const canvas = document.getElementById('modal-visualizer');
+      const ctx = canvas.getContext('2d');
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(data);
+      ctx.fillStyle = '#09090b';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const bw = (canvas.width / data.length) * 1.5;
+      let x = 0;
+      for (let i = 0; i < data.length; i++) {
+        const h = (data[i] / 255) * canvas.height;
+        ctx.fillStyle = '#00B5D8';
+        ctx.fillRect(x, canvas.height - h, bw - 2, h);
+        x += bw;
+      }
+    }
 
     function openTool(item) {
       activeTool = item;
@@ -250,6 +304,7 @@
       modal.classList.add('hidden');
       modal.classList.remove('flex');
       document.getElementById('result-audio').pause();
+      document.getElementById('input-audio').pause();
     }
 
     async function detectBPMClient(file) {
@@ -273,6 +328,7 @@
       const fileInput = document.getElementById('audio-input');
       if (!fileInput.files.length) return alert('Pehle ek audio file select karein!');
 
+      document.getElementById('input-audio').pause();
       const file = fileInput.files[0];
       const statusBox = document.getElementById('status-box');
       const resultBox = document.getElementById('result-box');
